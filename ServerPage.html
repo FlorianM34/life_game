@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styleSheet.css">
+    <title>Configuration de la Simulation</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        label, input {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 60%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <label for="numPlayers">Nombre de joueurs :</label>
+    <input type="number" id="numPlayers" name="numPlayers">
+    
+    <label for="numTurns">Nombre de tours :</label>
+    <input type="number" id="numTurns" name="numTurns">
+
+    <button onclick="openSession()">Lancer la simulation</button>
+
+    <script>     
+    
+
+    var numPlayers = document.getElementById('numPlayers');
+    var numTurns  = document.getElementById('numTurns');
+
+    const socket = io();
+    const roomName = 'roomName';
+
+    
+    function openSession(){
+      if(numPlayers.value != null && numTurns.value != null){
+        if(numPlayers.value <= 4 || numPlayers.value > 0){
+          if(numTurns.value > 0){
+            socket.emit('joinGame', {nbP : numPlayers.value, nbT : numTurns.value});
+          }
+          else {
+            alert('Le nombre de tours ne peut pas etre inférieur ou égale a 0' + numPlayers.value);
+          }
+        }
+        else {
+          alert('le nombre de joueur doit etre compris entre 0 et 4 ');
+        }
+      }
+      else {
+        alert('veuillez indiqué les deux valeurs svp');
+      }
+    }
+
+    function joinGame(){
+      window.location.href = "ClientPage.html";
+    }
+
+    socket.on('joinGameAdmin', joinGame);
+
+  </script>
+</body>
+</html>

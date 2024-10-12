@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/socket.io/socket.io.js"></script>    
+    <link rel="stylesheet" href="styleSheetWaitingScreen.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En Attente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+            font-size: 18px; /* Taille de police agrandie */
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px; /* Taille de police plus grande pour le titre */
+        }
+
+        fieldset {
+            margin: 0 auto;
+            padding: 30px; /* Plus de padding */
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            width: 60%; /* Largeur ajustée */
+            max-width: 500px; /* Largeur maximale pour de grands écrans */
+        }
+
+        legend {
+            padding: 0 15px;
+            background-color: #fff;
+            color: #555;
+            font-size: 20px; /* Taille de police du titre du fieldset */
+        }
+
+        label {
+            margin-right: 15px; /* Espacement plus grand */
+            display: block; /* Chaque label sur sa propre ligne */
+            margin-top: 10px; /* Espacement au-dessus de chaque label */
+        }
+
+        input[type="text"] {
+            margin-bottom: 15px; /* Plus d'espace entre les champs */
+            padding: 10px; /* Plus de padding */
+            border: 1px solid #ddd;
+            border-radius: 5px; /* Bordures arrondies */
+            width: 80%; /* Largeur des champs de texte */
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 15px 30px; /* Plus de padding */
+            border-radius: 5px; /* Bordures arrondies */
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 20px; /* Taille de police plus grande */
+            margin-top: 20px; /* Espacement au-dessus du bouton */
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vous attendez l'hôte de la session</h1>
+
+    <fieldset>
+        <legend>Créer le premier couple de créatures</legend>
+        <label for="creature1">Créature 1 :</label>
+        <input type="text" id="creature1" name="creature1" required>
+        <label for="creature2">Créature 2 :</label>
+        <input type="text" id="creature2" name="creature2" required>
+    </fieldset>
+    <button onclick="createServerRequest()">SOUMETTRE</button>
+
+    <script>
+
+    const socket = io();
+        const roomName = 'roomName';
+        const nbPlayer = 0;
+
+        const creatureName1 = document.getElementById('creature1');
+        const creatureName2 = document.getElementById('creature2');
+
+        sessionStorage.setItem('c1', creatureName1);
+        function serverPageRedirect(){
+            window.location.href = '/ServerPage.html'
+        }
+
+        function createServerRequest(){
+            if(creatureName1.value.length !== 0 && creatureName2.value.length !== 0 ){
+                socket.emit('createServer' , {c1 :creatureName1.value, c2 : creatureName2.value }); 
+                // socket.emit('joinRoom', roomName);  
+            }
+            else {
+                alert('rentrer les deux valeurs');
+            }
+        }
+
+        socket.on('serverPage', serverPageRedirect);
+
+        function redirect() {
+            window.location.href = '/ClientPage.html';
+            // socket.emit("joinRoom", roomName);
+        }
+
+        socket.on('joinGamePlayer', redirect);
+
+    </script>
+</body>
+</html>

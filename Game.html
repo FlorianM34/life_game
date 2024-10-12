@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>VOUS ETES DANS LA ROOM BIEN JOUÉ</title>
+  
+  <script src="/socket.io/socket.io.js"> </script>
+  <script src="https://d3js.org/d3.v6.min.js"> </script>
+
+  <!-- <p id="force"></p> -->
+  
+</head>
+<body>
+
+    <button onclick = 'startGame()'>START</button>
+
+    <script src = "Hexagone.js"></script>
+    <script>
+
+    // const idForce = document.getElementById('force');
+
+    
+    var map = sessionStorage.getItem('map');
+    const socket = io();  
+    
+    // var force = sessionStorage.get('force');
+    // idForce.innerHTML= force;
+    
+    socket.emit('joinRoom', 'roomName');
+
+    socket.emit("giveMeMap");
+    
+    socket.on("takeTheMap", JsonMap => { 
+        sessionStorage.setItem('map', JsonMap);
+        map = JSON.parse(JsonMap);
+        afficheMap(map)
+        const stringMap = JSON.stringify(map)
+        socket.emit('newMap', stringMap);
+    });
+
+    socket.on('loadNewMap', (newMap) => {
+        map = JSON.parse(newMap);
+        afficheMap(map)
+    })
+
+    function startGame(){
+        socket.emit('startGame');
+    }
+
+    socket.emit("giveMeAttribut");
+
+    socket.on("getAttirbutFromServ", player => {
+        const parsedPlayer = JSON.parse(player);
+        sessionStorage.setItem("force",player.force)
+    })
+
+</script>
+</body>
+</html>

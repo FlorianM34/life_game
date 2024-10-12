@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="styleSheet" href="styleSheet.css">
+
+  <title>VOUS ETES DANS LA ROOM BIEN JOUÉ</title>
+  
+  <script src="/socket.io/socket.io.js"> </script>
+  <script src="https://d3js.org/d3.v6.min.js"> </script>
+  
+</head>
+<body>
+
+  <script src = "Hexagone.js"></script>
+  <div id="myModal" class="modal">
+      <div class="modal-content" onclick="event.stopPropagation()">
+          <span class="close" id="btnCloseModal" onclick="closeModal('myModal', 'myModalc2')">&times;</span>
+          <h2 id="creature1"></h2>
+          <p id = "nbPoint"></p>
+
+          <p id = "nbPointForce"> </p>
+          <button id="addPointForce"></button>
+
+
+          <p id = "nbPointReproduction"> </p>
+          <button id="addReproduction"></button>
+
+
+          <p id = "nbPointPerception"> </p>
+          <button id="addPointPerception"></button>
+      </div>
+      </div>
+<!-- nouvelle fenetre modale -->
+      <div id="myModalc2" class="modal" >
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close" id="btnCloseModalc2">&times;</span>
+            <h2 id = "creature2"></h2>
+            <p id = "nbPointc2"></p>
+  
+            <p id = "nbPointForcec2"> </p>
+            <button id="addPointForcec2"></button>
+  
+  
+            <p id = "nbPointReproductionc2"> </p>
+            <button id="addReproductionc2"></button>
+  
+  
+            <p id = "nbPointPerceptionc2"> </p>
+            <button id="addPointPerceptionc2"></button>
+
+        </div>
+  </div>
+  <script>
+
+    const socket = io();  
+    const roomName = 'roomName';
+
+    var myPlayer = sessionStorage.getItem('player');
+
+    var c1 = null
+    var c2 = null
+
+
+    socket.emit('newPlayer');
+    // var map = sessionStorage.getItem('map');
+        
+    socket.on('player', (JsonPlayer) => {
+        console.log("player got");
+        sessionStorage.setItem('player', JsonPlayer);
+        console.log("jsonPlayer = " + JsonPlayer);
+
+        myPlayer = JSON.parse(JsonPlayer);
+        console.log(myPlayer);
+        c1 = myPlayer.creatureList[0];
+        c2 = myPlayer.creatureList[1];
+
+    const modal = document.getElementById("myModal");
+
+
+    modal.style.display = "block"
+
+    
+    const btnOpenModal = document.getElementById("btnOpenModal");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const creature1Name = document.getElementById('creature1');
+    creature1Name.innerHTML = "Parametrage de la créature " + c1.name;
+
+    //FORCE
+    var pointForce = 0;
+    const idNbPointForce = document.getElementById('nbPointForce');
+    const addPointForce = document.getElementById("addPointForce");
+    idNbPointForce.innerHTML = "Force : " + pointForce;
+
+
+    //PERCEPTION
+    var perceptionPoint = 0;
+    const idNbPointPerception = document.getElementById('nbPointPerception');
+    const addPointPerception = document.getElementById("addPointPerception");
+    idNbPointPerception.innerHTML = "Perception : " + perceptionPoint;
+
+    //REPRODUCTION
+    var reproductionPoint = 0;
+    const idNbPointReproduction = document.getElementById('nbPointReproduction');
+    const addReproduction = document.getElementById("addReproduction");
+    idNbPointReproduction.innerHTML = "Reproduction : " + reproductionPoint;
+
+    var nbPoint = 9;
+    const idNbPoint = document.getElementById('nbPoint');
+    idNbPoint.innerHTML = "nombre de points : " + nbPoint
+
+
+
+
+    const modalc2 = document.getElementById("myModalc2");
+    const btnOpenModalc2 = document.getElementById("btnOpenModalc2");
+    const btnCloseModalc2 = document.getElementById("btnCloseModalc2");
+    const creature2Name = document.getElementById('creature2');
+    creature2Name.innerHTML = "Parametrage de la créature " + c2.name;
+    
+ 
+
+    //FORCE
+    var pointForcec2 = 0;
+    const idNbPointForcec2 = document.getElementById('nbPointForcec2');
+    const addPointForcec2 = document.getElementById("addPointForcec2");
+    idNbPointForcec2.innerHTML = "Force : " + pointForcec2;
+
+
+    //PERCEPTION
+    var perceptionPointc2 = 0;
+    const idNbPointPerceptionc2 = document.getElementById('nbPointPerceptionc2');
+    const addPointPerceptionc2 = document.getElementById("addPointPerceptionc2");
+    idNbPointPerceptionc2.innerHTML = "Perception : " + perceptionPointc2;
+
+    //REPRODUCTION
+    var reproductionPointc2 = 0;
+    const idNbPointReproductionc2 = document.getElementById('nbPointReproductionc2');
+    const addReproductionc2 = document.getElementById("addReproductionc2");
+    idNbPointReproductionc2.innerHTML = "Reproduction : " + reproductionPointc2;
+
+    var nbPointc2 = 9;
+    const idNbPointc2 = document.getElementById('nbPointc2');
+    idNbPointc2.innerHTML = "nombre de points : " + nbPointc2
+
+     // Fonction pour fermer la modal et afficher la suivante
+    function closeModal(modalToClose, modalToShow) {
+        document.getElementById(modalToClose).style.display = 'none';
+        document.getElementById(modalToShow).style.display = 'block';
+    }
+
+    // Gestionnaire d'événement pour fermer la modal en cliquant à l'extérieur
+    document.addEventListener('click', function(event) {
+      var modal1 = document.getElementById('myModal');
+      var modal2 = document.getElementById('myModalc2');
+
+      if (event.target === modal1) {
+        closeModal('myModal', 'myModalc2');
+      } else if (event.target === modal2) {
+        modal2.style.display = "none";
+        window.location.href = "/Game.html";
+      }
+    });
+
+    // Action à effectuer lors du clic sur le bouton à l'intérieur de la fenêtre modale
+    addPointForce.addEventListener("click", function() {
+        if(nbPoint > 0){
+            if(pointForce < 5){
+                pointForce += 1;
+                nbPoint -= 1;
+                c1.force += 1;
+            }
+            else {
+                alert('vous avez maxer la force');
+            }
+        }
+
+        else {
+            alert("Vous n'avez plus de point");
+        }
+        idNbPointForce.innerHTML = "Force : " + pointForce;
+        idNbPoint.innerHTML = "nombre de points" + nbPoint
+    });
+
+    addReproduction.addEventListener("click", function() {
+        if(nbPoint > 0){
+            if(reproductionPoint < 5){
+                reproductionPoint += 1;
+                nbPoint -= 1;
+                c1.tauxReproduction += 1
+            }
+
+            else {
+                alert('vous avez maxer la force');
+            }
+        }
+        else {
+            alert("Vous n'avez plus de point");
+        }
+        idNbPointReproduction.innerHTML = "Reproduction : " + reproductionPoint;
+        idNbPoint.innerHTML = "nombre de points" + nbPoint
+    });
+        
+
+    addPointPerception.addEventListener("click", function() {
+        if(nbPoint > 0 ){
+            if(perceptionPoint < 5){
+            perceptionPoint += 1;
+            nbPoint -= 1;
+            c1.perception += 1;
+          }
+          else {
+            alert('vous avez maxer la force');
+          }
+        }
+        else {
+          alert("Vous n'avez plus de point");
+        }
+      idNbPointPerception.innerHTML = "Perception : " + perceptionPoint;
+      idNbPoint.innerHTML = "nombre de points" + nbPoint
+    });
+
+
+    // Fermer la fenêtre modale en cliquant en dehors de celle-ci
+    // window.addEventListener("click", function(event) {
+    //     if (event.target == modalc2) {
+    //         modalc2.style.display = "none";
+    //         socket.emit("playerNewCreature",myPlayer);
+    //         window.location.href = "/Game.html"
+    //     }
+    // });
+
+    // Action à effectuer lors du clic sur le bouton à l'intérieur de la fenêtre modale
+    addPointForcec2.addEventListener("click", function() {
+        if(nbPointc2 > 0){
+            if(pointForcec2 < 5){
+                pointForcec2 += 1;
+                nbPointc2 -= 1;
+                c2.forcec2 += 1;
+            }
+            else {
+                alert('vous avez maxer la force');
+            }
+        }
+
+        else {
+            alert("Vous n'avez plus de point");
+        }
+        idNbPointForcec2.innerHTML = "Force : " + pointForce;
+        idNbPointc2.innerHTML = "nombre de points" + nbPoint
+    });
+
+    addReproductionc2.addEventListener("click", function() {
+        if(nbPointc2 > 0){
+            if(reproductionPointc2 < 5){
+                reproductionPointc2 += 1;
+                nbPointc2-= 1;
+                c2.tauxReproductionc2 += 1
+            }
+
+            else {
+                alert('vous avez maxer la force');
+            }
+        }
+        else {
+            alert("Vous n'avez plus de point");
+        }
+        idNbPointReproductionc2.innerHTML = "Reproduction : " + reproductionPointc2;
+        idNbPointc2.innerHTML = "nombre de points" + nbPointc2
+    });
+        
+
+    addPointPerceptionc2.addEventListener("click", function() {
+        if(nbPointc2 > 0 ){
+            if(perceptionPointc2 < 5){
+            perceptionPointc2 += 1;
+            nbPointc2 -= 1;
+            c2.perceptionc2 += 1;
+          }
+          else {
+            alert('vous avez maxer la force');
+          }
+        }
+        else {
+          alert("Vous n'avez plus de point");
+        }
+      idNbPointPerceptionc2.innerHTML = "Perception : " + perceptionPointc2;
+      idNbPointc2.innerHTML = "nombre de points" + nbPointc2
+    });
+
+});
+
+</script>
+<br>
+</body>
+</html>
